@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mi Bitácora como Aviadora · El Principito</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,700&family=Karla:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --noche:#080C22;
+  --altura:#141B3D;
+  --papel:#F2E6CE;
+  --laton:#E4B363;
+  --rosa:#C96A72;
+  --agua:#7FB3B5;
+  --tenue:rgba(242,230,206,.66);
+  --linea:rgba(228,179,99,.28);
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --texto:"Karla","Helvetica Neue",Arial,sans-serif;
+  --mono:"Space Mono","SF Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:radial-gradient(1100px 760px at 76% 6%, #23306B 0%, #1A2150 38%, var(--noche) 100%);
+  color:var(--papel);font-family:var(--texto);min-height:100vh;overflow-x:hidden;
+}
+/* ---------- fondo: cielo + escena del libro ---------- */
+#cielo{position:fixed;inset:0;z-index:0;pointer-events:none}
+#escena{position:fixed;left:0;right:0;bottom:0;height:62vh;z-index:0;pointer-events:none;opacity:.92}
+#escena svg{width:100%;height:100%;display:block}
+#velo{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(8,12,34,.10) 0%,rgba(8,12,34,.55) 46%,rgba(8,12,34,.86) 100%)}
+.shell{position:relative;z-index:2;max-width:1180px;margin:0 auto;padding:22px clamp(16px,4vw,40px) 28px;min-height:100vh;display:flex;flex-direction:column;gap:16px}
+
+/* ---------- barra superior ---------- */
+.topbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--linea)}
+.marca{display:flex;align-items:center;gap:12px}
+.brujula{width:34px;height:34px;flex:none}
+.marca b{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;color:var(--laton);display:block;line-height:1.4}
+.marca span{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--tenue);text-transform:uppercase}
+.controles{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;background:rgba(242,230,206,.06);color:var(--papel);border:1px solid var(--linea);padding:8px 12px;border-radius:999px;cursor:pointer;transition:.25s}
+.chip:hover{background:rgba(228,179,99,.16);border-color:var(--laton)}
+.chip[aria-pressed="true"]{background:var(--laton);color:#14172E;border-color:var(--laton);font-weight:700}
+select.chip{appearance:none;padding-right:26px;max-width:210px;
+  background-image:linear-gradient(45deg,transparent 50%,var(--laton) 50%),linear-gradient(135deg,var(--laton) 50%,transparent 50%);
+  background-position:calc(100% - 15px) 52%,calc(100% - 10px) 52%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+select.chip option{background:var(--altura);color:var(--papel)}
+:focus-visible{outline:2px solid var(--laton);outline-offset:3px}
+#estado{width:100%;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--agua);min-height:14px;text-align:right}
+#estado.alerta{color:var(--rosa)}
+
+/* ---------- diapositivas ---------- */
+.deck{flex:1;position:relative}
+.slide{display:none}
+.slide.is-active{display:block;animation:entra .55s cubic-bezier(.2,.7,.3,1) both}
+@keyframes entra{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.grid{display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(20px,4vw,54px);align-items:center;padding:clamp(8px,2.4vh,30px) 0}
+.texto{background:linear-gradient(100deg,rgba(8,12,34,.62),rgba(8,12,34,.22));backdrop-filter:blur(2px);
+  border-left:1px solid var(--linea);padding:22px clamp(14px,2.4vw,26px);border-radius:2px}
+.eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--laton);margin:0 0 14px}
+.eyebrow i{font-style:normal;color:var(--tenue)}
+h1{font-family:var(--display);font-weight:300;font-size:clamp(32px,5.8vw,60px);line-height:1.03;margin:0 0 16px;letter-spacing:-.02em}
+h1 em{font-style:italic;font-weight:500;color:var(--laton)}
+h2{font-family:var(--display);font-weight:300;font-size:clamp(27px,4.2vw,44px);line-height:1.06;margin:0 0 6px;letter-spacing:-.015em}
+h2 em{font-style:italic;color:var(--laton);font-weight:500}
+.sub{font-family:var(--display);font-style:italic;font-size:clamp(15px,1.8vw,19px);color:var(--agua);margin:0 0 18px}
+p.lede{font-size:clamp(14.5px,1.6vw,17px);line-height:1.66;color:var(--tenue);margin:0 0 20px;max-width:52ch}
+.commit{border-left:2px solid var(--rosa);padding:2px 0 2px 18px;max-width:52ch}
+.commit b{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--rosa);margin-bottom:8px}
+.commit p{margin:0;font-size:clamp(14px,1.55vw,16px);line-height:1.6;color:var(--papel)}
+
+/* ---------- ventanilla ---------- */
+.vista{display:flex;flex-direction:column;align-items:center;gap:12px}
+.porthole{position:relative;width:min(420px,78vw);aspect-ratio:1;border-radius:50%;overflow:hidden;cursor:pointer;border:0;padding:0;background:#080C22;display:block;
+  box-shadow:0 0 0 2px rgba(228,179,99,.55),0 0 0 12px rgba(242,230,206,.05),0 0 0 13px rgba(228,179,99,.22),0 26px 60px rgba(0,0,0,.6);
+  transition:transform .4s cubic-bezier(.2,.7,.3,1),box-shadow .4s}
+.porthole:hover{transform:translateY(-4px) scale(1.012)}
+.porthole svg,.porthole img{width:100%;height:100%;display:block;object-fit:cover}
+.porthole::after{content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;background:radial-gradient(120% 90% at 26% 12%,rgba(242,230,206,.15),transparent 46%)}
+.porthole.speaking{animation:latido 2.1s ease-in-out infinite}
+@keyframes latido{0%,100%{box-shadow:0 0 0 2px var(--laton),0 0 0 12px rgba(228,179,99,.16),0 0 0 13px rgba(228,179,99,.45),0 26px 60px rgba(0,0,0,.6)}
+50%{box-shadow:0 0 0 2px var(--laton),0 0 0 24px rgba(228,179,99,.05),0 0 0 25px rgba(228,179,99,.18),0 26px 60px rgba(0,0,0,.6)}}
+.pista{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--tenue);text-align:center;margin:0}
+.pista b{color:var(--laton);font-weight:700}
+.acciones{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.urlbox{display:none;gap:8px;width:min(430px,80vw);margin:0 auto}
+.urlbox.open{display:flex}
+.urlbox input{flex:1;min-width:0;background:rgba(242,230,206,.06);border:1px solid var(--linea);color:var(--papel);border-radius:999px;padding:8px 14px;font-family:var(--mono);font-size:11px}
+.urlbox input::placeholder{color:rgba(242,230,206,.4)}
+
+/* ---------- cierre ---------- */
+.ficha{background:rgba(242,230,206,.05);border:1px solid var(--linea);border-radius:3px;padding:20px;max-width:60ch}
+.ficha b{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--laton);display:block;margin-bottom:10px}
+.ficha p{margin:0;font-size:15px;line-height:1.7;color:var(--tenue)}
+.ficha p span{color:var(--papel)}
+.firma{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--tenue);border-top:1px solid var(--linea);padding-top:14px;margin:20px 0 0}
+
+/* ---------- pie ---------- */
+.nav{display:flex;align-items:center;gap:16px;justify-content:space-between;border-top:1px solid var(--linea);padding-top:14px}
+.flechas{display:flex;gap:8px}
+.arrow{width:42px;height:42px;border-radius:50%;border:1px solid var(--linea);background:rgba(8,12,34,.5);color:var(--papel);cursor:pointer;font-size:16px;line-height:1;transition:.25s;display:grid;place-items:center}
+.arrow:hover:not(:disabled){background:var(--laton);color:#14172E;border-color:var(--laton)}
+.arrow:disabled{opacity:.28;cursor:default}
+.altimetro{flex:1;display:flex;align-items:center;gap:12px}
+.barra{flex:1;height:2px;background:rgba(242,230,206,.16);position:relative;overflow:hidden}
+.barra i{position:absolute;left:0;top:0;bottom:0;background:var(--laton);transition:width .5s cubic-bezier(.2,.7,.3,1)}
+.conteo{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--tenue);white-space:nowrap}
+.conteo b{color:var(--laton)}
+.puntos{display:flex;gap:7px}
+.punto{width:8px;height:8px;border-radius:50%;border:1px solid var(--linea);background:transparent;padding:0;cursor:pointer;transition:.25s}
+.punto[aria-current="true"]{background:var(--laton);border-color:var(--laton);transform:scale(1.25)}
+
+@media (max-width:860px){
+  .grid{grid-template-columns:1fr;gap:24px}
+  .vista{order:-1}
+  .commit,p.lede{max-width:none}
+  .puntos{display:none}
+  #estado{text-align:left}
+  #escena{height:46vh;opacity:.7}
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="cielo"></canvas>
+
+<!-- ===== fondo: la escena del libro ===== -->
+<div id="escena" aria-hidden="true">
+<svg viewBox="0 0 1440 700" preserveAspectRatio="xMidYMax slice">
+  <defs>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#E4B363" stop-opacity=".26"/><stop offset="100%" stop-color="#E4B363" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="arena" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2A2C57"/><stop offset="100%" stop-color="#0A0E24"/>
+    </linearGradient>
+  </defs>
+  <circle cx="1178" cy="196" r="230" fill="url(#halo)"/>
+  <!-- dunas -->
+  <path d="M0 470 Q210 398 452 466 T902 448 T1440 466 L1440 700 L0 700 Z" fill="#20244E" opacity=".9"/>
+  <path d="M0 528 Q250 468 520 528 T1010 512 T1440 530 L1440 700 L0 700 Z" fill="url(#arena)"/>
+  <path d="M0 596 Q300 552 620 600 T1160 584 T1440 598 L1440 700 L0 700 Z" fill="#06091B"/>
+  <!-- asteroides lejanos -->
+  <g fill="#141936" opacity=".9">
+    <circle cx="150" cy="120" r="26"/><circle cx="470" cy="66" r="15"/><circle cx="760" cy="150" r="20"/>
+  </g>
+  <!-- el principito sobre su asteroide -->
+  <g transform="translate(1178,470)">
+    <circle r="132" fill="#0B0F26"/>
+    <circle r="132" fill="none" stroke="#E4B363" stroke-width="1" opacity=".35"/>
+    <ellipse cx="-40" cy="-46" rx="34" ry="16" fill="#141936" opacity=".8"/>
+    <!-- volcán -->
+    <g transform="translate(66,-104) rotate(30)"><path d="M-16 12 L0 -14 L16 12 Z" fill="#06091B"/></g>
+    <!-- rosa bajo el fanal -->
+    <g transform="translate(-74,-104) rotate(-30)">
+      <path d="M-22 4 q0 -30 22 -30 q22 0 22 30 Z" fill="#7FB3B5" opacity=".16"/>
+      <path d="M-22 4 q0 -30 22 -30 q22 0 22 30" fill="none" stroke="#7FB3B5" stroke-width="1.4" opacity=".7"/>
+      <path d="M0 2 v-16" stroke="#06091B" stroke-width="3"/><circle cy="-18" r="7" fill="#C96A72"/>
+    </g>
+    <!-- figura -->
+    <g transform="translate(4,-132)">
+      <path d="M14 -22 q34 -6 50 -24 q-6 24 -30 34 q-12 5 -20 0 Z" fill="#06091B"/>
+      <circle cx="0" cy="-46" r="16" fill="#06091B"/>
+      <path d="M-17 -52 q6 -22 20 -18 q16 4 14 20 q-16 -12 -34 -2 Z" fill="#06091B"/>
+      <path d="M-12 -30 q12 -9 24 0 l8 34 q-20 9 -40 0 Z" fill="#06091B"/>
+      <rect x="-10" y="4" width="8" height="26" rx="3" fill="#06091B"/>
+      <rect x="3" y="4" width="8" height="26" rx="3" fill="#06091B"/>
+    </g>
+  </g>
+  <!-- el zorro -->
+  <g transform="translate(268,556)" opacity=".95">
+    <path d="M-4 22 q-22 -6 -20 -32 q2 -24 20 -28 q20 -4 26 16 q6 22 -6 44 Z" fill="#06091B"/>
+    <path d="M-26 22 q-30 -4 -34 -22 q-4 -16 15 -12 q17 4 21 20 Z" fill="#06091B"/>
+    <path d="M4 -30 l-9 -22 l15 10 Z" fill="#06091B"/><path d="M20 -25 l6 -22 l6 20 Z" fill="#06091B"/>
+    <path d="M2 -32 q22 -6 30 12 q7 19 -10 26 q-18 6 -25 -10 Z" fill="#06091B"/>
+  </g>
+  <!-- baobab -->
+  <g transform="translate(1010,548)" opacity=".9">
+    <path d="M0 34 v-40" stroke="#06091B" stroke-width="12" stroke-linecap="round"/>
+    <path d="M0 -8 l-30 -22 M0 -8 l28 -26 M0 -14 l-8 -34 M0 -12 l16 -30" stroke="#06091B" stroke-width="7" stroke-linecap="round"/>
+  </g>
+</svg>
+</div>
+<div id="velo"></div>
+
+<div class="shell">
+
+  <header class="topbar">
+    <div class="marca">
+      <svg class="brujula" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="21" fill="none" stroke="var(--laton)" stroke-width="1.2" opacity=".8"/>
+        <circle cx="24" cy="24" r="15" fill="none" stroke="var(--laton)" stroke-width=".6" opacity=".45"/>
+        <path d="M24 8 L27.4 21 L24 24 L20.6 21 Z" fill="var(--rosa)"/>
+        <path d="M24 40 L20.6 27 L24 24 L27.4 27 Z" fill="var(--papel)" opacity=".8"/>
+        <circle cx="24" cy="24" r="1.8" fill="var(--laton)"/>
+      </svg>
+      <div><b>Bitácora de vuelo</b><span>Educación Especial · El Principito</span></div>
+    </div>
+    <div class="controles">
+      <select class="chip" id="voces" aria-label="Elegir voz de la narración"><option value="">Cargando voces…</option></select>
+      <button class="chip" id="btnProbar">Probar voz</button>
+      <button class="chip" id="btnAuto" aria-pressed="false">Narración automática</button>
+      <button class="chip" id="btnAmb" aria-pressed="false">Sonido ambiente</button>
+      <button class="chip" id="btnStop">Detener</button>
+    </div>
+    <p id="estado" role="status" aria-live="polite"></p>
+  </header>
+
+  <main class="deck" id="deck">
+
+    <!-- ============ PORTADA ============ -->
+    <section class="slide is-active" data-titulo="Portada">
+      <div class="grid">
+        <div class="texto">
+          <p class="eyebrow">Cuaderno de a bordo <i>/ Lectura Fácil, Fundación ONCE</i></p>
+          <h1>Mi Bitácora como <em>Aviadora</em></h1>
+          <p class="sub">El reencuentro con lo esencial en la Educación Especial</p>
+          <p class="lede">Como el aviador de Saint-Exupéry, aterricé en el desierto de mi propia práctica docente. Aquí registro cinco entradas de vuelo: cinco decisiones sobre cómo miro, escucho y acompaño a mis alumnos.</p>
+          <p class="firma">Toca la ventanilla para escuchar · Voz en español latino</p>
+        </div>
+        <div class="vista">
+          <button class="porthole" data-narracion="Bitácora de vuelo. Mi reencuentro con lo esencial en la Educación Especial. Como el aviador de Saint-Exupéry, aterricé en el desierto de mi propia práctica para volver a mirar con el corazón. Aquí registro cinco entradas de mi cuaderno de a bordo: cinco decisiones sobre cómo miro, escucho y acompaño a mis alumnos. Toca cada imagen y te la cuento." aria-label="Escuchar la introducción de la bitácora">
+            <svg viewBox="0 0 400 400" role="img" aria-label="Avión de la aviadora sobre las dunas bajo un cielo estrellado">
+              <defs>
+                <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1B2555"/><stop offset="55%" stop-color="#2A2B58"/><stop offset="100%" stop-color="#4A3A56"/></linearGradient>
+                <linearGradient id="duna1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E4B363"/><stop offset="100%" stop-color="#9C6F41"/></linearGradient>
+              </defs>
+              <rect width="400" height="400" fill="url(#g1)"/>
+              <g fill="#F2E6CE"><circle cx="70" cy="60" r="1.6" opacity=".9"/><circle cx="130" cy="40" r="1.1" opacity=".6"/><circle cx="200" cy="80" r="1.4" opacity=".75"/><circle cx="270" cy="45" r="1" opacity=".55"/><circle cx="330" cy="95" r="1.5" opacity=".8"/><circle cx="110" cy="120" r="1" opacity=".5"/><circle cx="250" cy="140" r="1.2" opacity=".6"/><circle cx="45" cy="160" r="1" opacity=".45"/></g>
+              <g transform="translate(300,88)"><circle r="4.5" fill="#F2E6CE"/><path d="M0 -22 L2.4 -3 L22 0 L2.4 3 L0 22 L-2.4 3 L-22 0 L-2.4 -3 Z" fill="#F2E6CE" opacity=".9"/></g>
+              <path d="M0 250 Q90 205 175 244 T400 232 L400 400 L0 400 Z" fill="url(#duna1)" opacity=".92"/>
+              <path d="M0 292 Q120 258 215 292 T400 282 L400 400 L0 400 Z" fill="#8A5E3C" opacity=".95"/>
+              <path d="M0 336 Q140 308 250 338 T400 330 L400 400 L0 400 Z" fill="#5E3F2E"/>
+              <path d="M40 205 C90 178 130 200 168 176 C196 158 220 168 244 152" fill="none" stroke="#F2E6CE" stroke-width="1.6" stroke-dasharray="5 7" opacity=".55" stroke-linecap="round"/>
+              <g transform="translate(248,146) rotate(-12)">
+                <ellipse cx="0" cy="0" rx="26" ry="5.2" fill="#141B3D"/>
+                <path d="M-16 -2 L6 -14 L16 -13 L2 -2 Z" fill="#141B3D"/>
+                <path d="M-14 2 L4 12 L14 11 L2 2 Z" fill="#141B3D" opacity=".75"/>
+                <path d="M-24 -2 L-30 -12 L-26 -12 L-19 -3 Z" fill="#141B3D"/>
+                <rect x="22" y="-9" width="1.8" height="18" rx="1" fill="#141B3D"/>
+              </g>
+              <text x="200" y="374" text-anchor="middle" font-family="Space Mono, monospace" font-size="11" letter-spacing="3.6" fill="#F2E6CE" opacity=".8">BITÁCORA · 5 ENTRADAS</text>
+            </svg>
+          </button>
+          <p class="pista"><b>&#9654;</b> Toca la ventanilla para escuchar</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ENTRADA 1 ============ -->
+    <section class="slide" data-titulo="Entrada 01">
+      <div class="grid">
+        <div class="texto">
+          <p class="eyebrow">Entrada 01 <i>/ La mirada</i></p>
+          <h2>Mi mirada <em>inclusiva</em></h2>
+          <p class="sub">Más allá del &ldquo;sombrero&rdquo;</p>
+          <p class="lede">En mi formación académica entiendo que, al igual que los adultos que solo veían un sombrero en el dibujo del Aviador, el sistema suele ver únicamente etiquetas o diagnósticos superficiales.</p>
+          <div class="commit"><b>Mi compromiso</b><p>Ver siempre al &ldquo;elefante dentro de la boa&rdquo;: validar la lógica única de mi alumno y fortalecer su seguridad para que nunca abandone lo que le apasiona por prejuicios externos.</p></div>
+        </div>
+        <div class="vista">
+          <button class="porthole" data-narracion="Entrada uno. Mi mirada inclusiva, más allá del sombrero. En mi formación académica entiendo que, igual que los adultos que solo veían un sombrero en el dibujo del Aviador, el sistema suele ver únicamente etiquetas o diagnósticos superficiales. Mi compromiso es ver siempre al elefante dentro de la boa: validar la lógica única de mi alumno y fortalecer su seguridad, para que nunca abandone lo que le apasiona por prejuicios externos." aria-label="Escuchar la entrada uno">
+            <svg viewBox="0 0 400 400" id="svgBoa" role="img" aria-label="El dibujo del sombrero que en realidad es una boa que se comió un elefante, junto a una etiqueta de diagnóstico">
+              <rect width="400" height="400" fill="#F2E6CE"/>
+              <g stroke="#C9B896" stroke-width=".7" opacity=".5"><path d="M0 96 H400 M0 152 H400 M0 208 H400 M0 264 H400 M0 320 H400"/></g>
+              <text x="200" y="62" text-anchor="middle" font-family="Space Mono, monospace" font-size="11" letter-spacing="3" fill="#8A7A5E" id="rotuloArriba">LO QUE EL SISTEMA VE</text>
+              <path d="M78 262 C78 194 128 142 200 142 C272 142 322 194 322 262 Z" fill="none" stroke="#3A3252" stroke-width="4.5" stroke-linejoin="round"/>
+              <path d="M78 262 C140 250 262 250 322 262" fill="none" stroke="#3A3252" stroke-width="4.5" stroke-linecap="round"/>
+              <g id="elefante" opacity="0" style="transition:opacity .5s">
+                <ellipse cx="205" cy="220" rx="62" ry="42" fill="#7FB3B5" opacity=".9"/>
+                <circle cx="150" cy="208" r="26" fill="#7FB3B5" opacity=".9"/>
+                <path d="M133 224 C118 240 120 254 130 258 C138 261 142 252 138 244" fill="none" stroke="#4E7F85" stroke-width="7" stroke-linecap="round"/>
+                <path d="M156 188 C144 180 140 194 148 200" fill="#4E7F85"/>
+                <rect x="176" y="252" width="14" height="14" rx="5" fill="#4E7F85"/>
+                <rect x="232" y="252" width="14" height="14" rx="5" fill="#4E7F85"/>
+                <circle cx="142" cy="204" r="3" fill="#233"/>
+              </g>
+              <g transform="translate(56,318)" opacity=".95">
+                <rect x="0" y="0" width="128" height="30" rx="4" fill="#fff" stroke="#C96A72" stroke-width="1.5"/>
+                <path d="M14 15 h-14" stroke="#C96A72" stroke-width="1.5"/>
+                <text x="64" y="20" text-anchor="middle" font-family="Space Mono, monospace" font-size="10" letter-spacing="1.6" fill="#C96A72">ETIQUETA</text>
+              </g>
+              <g transform="translate(216,318)" opacity=".95">
+                <rect x="0" y="0" width="128" height="30" rx="4" fill="#fff" stroke="#4E7F85" stroke-width="1.5"/>
+                <text x="64" y="20" text-anchor="middle" font-family="Space Mono, monospace" font-size="10" letter-spacing="1.4" fill="#4E7F85">LÓGICA ÚNICA</text>
+              </g>
+            </svg>
+          </button>
+          <p class="pista"><b>&#9654;</b> Toca la ventanilla para escuchar</p>
+          <div class="acciones"><button class="chip" id="btnElefante" aria-pressed="false">Mostrar el elefante</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ENTRADA 2 ============ -->
+    <section class="slide" data-titulo="Entrada 02">
+      <div class="grid">
+        <div class="texto">
+          <p class="eyebrow">Entrada 02 <i>/ El encuentro</i></p>
+          <h2>El aula como <em>encuentro</em></h2>
+          <p class="sub">Sentir más allá de la avería</p>
+          <p class="lede">A veces, la Educación Especial se siente como el desierto del Sáhara: un lugar de incertidumbre donde mis recursos técnicos parecen limitados.</p>
+          <div class="commit"><b>Mi compromiso</b><p>Dejar de ser la técnica que solo intenta &ldquo;reparar el motor&rdquo; del aula para ser la persona que se sienta en la arena a escuchar; en esa vulnerabilidad nace el vínculo real con el alumno.</p></div>
+        </div>
+        <div class="vista">
+          <button class="porthole" data-narracion="Entrada dos. El aula como encuentro: sentir más allá de la avería. A veces la Educación Especial se siente como el desierto del Sáhara: un lugar de incertidumbre donde mis recursos técnicos parecen limitados. Elijo dejar de ser la técnica que solo intenta reparar el motor del aula, para ser la persona que se sienta en la arena a escuchar. Entiendo que en esa vulnerabilidad es donde nace el vínculo real con el alumno." aria-label="Escuchar la entrada dos">
+            <svg viewBox="0 0 400 400" role="img" aria-label="El avión averiado en el desierto y la docente sentada en la arena junto a su alumno">
+              <defs><linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2C2E63"/><stop offset="60%" stop-color="#6B4A63"/><stop offset="100%" stop-color="#C98A5E"/></linearGradient></defs>
+              <rect width="400" height="400" fill="url(#g2)"/>
+              <circle cx="300" cy="140" r="34" fill="#F2E6CE" opacity=".16"/><circle cx="300" cy="140" r="20" fill="#F2E6CE" opacity=".3"/>
+              <g fill="#F2E6CE" opacity=".7"><circle cx="60" cy="52" r="1.4"/><circle cx="140" cy="86" r="1"/><circle cx="220" cy="46" r="1.3"/><circle cx="352" cy="70" r="1.1"/></g>
+              <path d="M0 268 Q100 232 200 266 T400 254 L400 400 L0 400 Z" fill="#D9A05B"/>
+              <path d="M0 312 Q120 284 230 316 T400 306 L400 400 L0 400 Z" fill="#B4753F"/>
+              <path d="M0 356 Q150 336 260 360 T400 352 L400 400 L0 400 Z" fill="#7E4E2E"/>
+              <g transform="translate(112,242) rotate(9)">
+                <ellipse cx="0" cy="0" rx="66" ry="12" fill="#2A2340"/>
+                <path d="M-40 -6 L14 -38 L38 -35 L4 -6 Z" fill="#2A2340"/>
+                <path d="M-60 -6 L-74 -28 L-65 -28 L-51 -8 Z" fill="#2A2340"/>
+                <rect x="56" y="-24" width="4" height="48" rx="2" fill="#2A2340"/>
+                <path d="M58 -24 L70 -38" stroke="#2A2340" stroke-width="4" stroke-linecap="round"/>
+                <g opacity=".6"><path d="M18 -13 q6 -14 -2 -22 M30 -11 q10 -12 4 -24" stroke="#F2E6CE" stroke-width="2" fill="none" stroke-linecap="round"/></g>
+              </g>
+              <!-- docente -->
+              <g transform="translate(238,306)">
+                <circle cx="0" cy="-32" r="13" fill="#2A2340"/>
+                <path d="M-15 -19 q15 -9 30 0 q7 21 3 28 q-18 6 -35 0 q-4 -9 2 -28 Z" fill="#2A2340"/>
+                <path d="M-17 9 q-20 4 -28 11 q17 6 32 2 Z" fill="#2A2340"/>
+                <path d="M17 9 q14 3 22 8" stroke="#2A2340" stroke-width="7" stroke-linecap="round" fill="none"/>
+              </g>
+              <!-- alumno -->
+              <g transform="translate(296,318)">
+                <circle cx="0" cy="-24" r="10" fill="#2A2340"/>
+                <path d="M-11 -14 q11 -7 22 0 q5 16 2 21 q-13 5 -26 0 q-3 -6 2 -21 Z" fill="#2A2340"/>
+                <path d="M-13 6 q-15 3 -21 9 q13 5 24 1 Z" fill="#2A2340"/>
+                <path d="M-11 -6 q-14 2 -20 6" stroke="#2A2340" stroke-width="6" stroke-linecap="round" fill="none"/>
+              </g>
+              <path d="M256 296 q18 -14 34 -8" stroke="#F2E6CE" stroke-width="1.4" fill="none" opacity=".55" stroke-dasharray="4 6" stroke-linecap="round"/>
+              <text x="200" y="378" text-anchor="middle" font-family="Space Mono, monospace" font-size="10.5" letter-spacing="3" fill="#F2E6CE" opacity=".75">SENTARSE EN LA ARENA A ESCUCHAR</text>
+            </svg>
+          </button>
+          <p class="pista"><b>&#9654;</b> Toca la ventanilla para escuchar</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ENTRADA 3 ============ -->
+    <section class="slide" data-titulo="Entrada 03">
+      <div class="grid">
+        <div class="texto">
+          <p class="eyebrow">Entrada 03 <i>/ El soporte</i></p>
+          <h2>La estrategia de la <em>caja</em></h2>
+          <p class="sub">Ajustes razonables</p>
+          <p class="lede">Para mi praxis docente, un ajuste razonable es como la caja del cordero: no entrego un conocimiento rígido ni terminado, sino que diseño el soporte necesario para que el estudiante use su propia luz.</p>
+          <div class="commit"><b>Mi compromiso</b><p>Mi éxito como profesional no es que el alumno aprenda como yo, sino darle la herramienta para que sea el protagonista de su propio progreso.</p></div>
+        </div>
+        <div class="vista">
+          <button class="porthole" data-narracion="Entrada tres. La estrategia de la caja: los ajustes razonables. Para mi praxis docente, un ajuste razonable es como la caja del cordero: no entrego un conocimiento rígido ni terminado, sino que diseño el soporte necesario para que el estudiante use su propia luz. Mi éxito como profesional no es que el alumno aprenda como yo, sino darle la herramienta para que sea el protagonista de su propio progreso." aria-label="Escuchar la entrada tres">
+            <svg viewBox="0 0 400 400" role="img" aria-label="La caja del cordero entregada al alumno, con su propia luz dentro">
+              <defs><radialGradient id="luz" cx="50%" cy="52%" r="50%"><stop offset="0" stop-color="#FFE9B8" stop-opacity=".95"/><stop offset="100%" stop-color="#E4B363" stop-opacity="0"/></radialGradient></defs>
+              <rect width="400" height="400" fill="#161C40"/>
+              <circle cx="196" cy="196" r="170" fill="url(#luz)" opacity=".4"/>
+              <g fill="#F2E6CE" opacity=".55"><circle cx="52" cy="54" r="1.3"/><circle cx="342" cy="64" r="1.5"/><circle cx="120" cy="34" r="1"/><circle cx="66" cy="330" r="1"/></g>
+              <!-- alumno recibiendo -->
+              <g transform="translate(318,244)" fill="#0D1230">
+                <circle cx="0" cy="-46" r="17"/>
+                <path d="M-18 -28 q18 -11 36 0 q9 34 5 44 q-23 8 -46 0 q-4 -10 5 -44 Z"/>
+                <path d="M-18 -18 q-28 6 -40 18" stroke="#0D1230" stroke-width="10" stroke-linecap="round" fill="none"/>
+              </g>
+              <g transform="translate(178,214)">
+                <path d="M-98 -50 L0 -78 L98 -50 L98 58 L0 86 L-98 58 Z" fill="#C08A4F"/>
+                <path d="M-98 -50 L0 -22 L0 86 L-98 58 Z" fill="#A0703C"/>
+                <path d="M98 -50 L0 -22 L0 86 L98 58 Z" fill="#D6A063"/>
+                <g fill="#2A1F14"><ellipse cx="-54" cy="6" rx="9" ry="11"/><ellipse cx="-54" cy="42" rx="7" ry="9" opacity=".8"/><ellipse cx="48" cy="4" rx="9" ry="11"/><ellipse cx="48" cy="40" rx="7" ry="9" opacity=".8"/></g>
+                <g fill="#FFE9B8"><ellipse cx="-54" cy="6" rx="4.5" ry="5.5"/><ellipse cx="48" cy="4" rx="4.5" ry="5.5"/></g>
+                <path d="M-98 -50 L0 -22 L98 -50" fill="none" stroke="#8A5E33" stroke-width="2"/>
+                <g transform="translate(0,-8)">
+                  <ellipse rx="32" ry="22" fill="#FFF3D4" opacity=".92"/>
+                  <circle cx="-26" cy="-8" r="12" fill="#FFF3D4"/>
+                  <rect x="-15" y="18" width="6" height="12" rx="3" fill="#E0CFA6"/>
+                  <rect x="11" y="18" width="6" height="12" rx="3" fill="#E0CFA6"/>
+                  <circle cx="-30" cy="-9" r="2" fill="#5B4A2E"/>
+                </g>
+              </g>
+              <g stroke="#E4B363" stroke-width="1.2" opacity=".45" fill="none"><path d="M178 92 v-26 M112 116 l-16 -20 M244 116 l16 -20"/></g>
+              <text x="200" y="380" text-anchor="middle" font-family="Space Mono, monospace" font-size="10.5" letter-spacing="3" fill="#E4B363" opacity=".85">AJUSTE RAZONABLE · SU PROPIA LUZ</text>
+            </svg>
+          </button>
+          <p class="pista"><b>&#9654;</b> Toca la ventanilla para escuchar</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ENTRADA 4 ============ -->
+    <section class="slide" data-titulo="Entrada 04">
+      <div class="grid">
+        <div class="texto">
+          <p class="eyebrow">Entrada 04 <i>/ El mapa</i></p>
+          <h2>Mi voz como <em>acompañante</em></h2>
+          <p class="sub">Derecho a la accesibilidad</p>
+          <p class="lede">Asumo mi rol de acompañante lectora utilizando la Lectura Fácil como mi mapa de vuelo para estimular y sociabilizar el aprendizaje.</p>
+          <div class="commit"><b>Mi compromiso</b><p>Eliminar las barreras de comprensión, asegurando que la cultura y la información sean un derecho real y accesible para todos mis alumnos, sin importar sus desafíos cognitivos.</p></div>
+        </div>
+        <div class="vista">
+          <button class="porthole" data-narracion="Entrada cuatro. Mi voz como acompañante: el derecho a la accesibilidad. Asumo mi rol de acompañante lectora utilizando la Lectura Fácil como mi mapa de vuelo, para estimular y sociabilizar el aprendizaje. Mi misión académica es eliminar las barreras de comprensión, asegurando que la cultura y la información sean un derecho real y accesible para todos mis alumnos, sin importar sus desafíos cognitivos." aria-label="Escuchar la entrada cuatro">
+              <svg viewBox="0 0 400 400" role="img" aria-label="El libro en Lectura Fácil abierto como mapa de vuelo, con las barreras de comprensión retiradas">
+              <rect width="400" height="400" fill="#1A2148"/>
+              <g fill="#F2E6CE" opacity=".5"><circle cx="48" cy="48" r="1.2"/><circle cx="350" cy="58" r="1.4"/><circle cx="200" cy="26" r="1"/><circle cx="70" cy="350" r="1.1"/></g>
+              <text x="200" y="70" text-anchor="middle" font-family="Space Mono, monospace" font-size="11" letter-spacing="4" fill="#E4B363">LECTURA FÁCIL</text>
+              <g transform="translate(200,222)">
+                <path d="M-150 40 Q-76 12 -4 34 L-4 -70 Q-76 -92 -150 -64 Z" fill="#F2E6CE"/>
+                <path d="M150 40 Q76 12 4 34 L4 -70 Q76 -92 150 -64 Z" fill="#EADCC0"/>
+                <path d="M-4 34 L-4 -70 M4 34 L4 -70" stroke="#C7B392" stroke-width="1.5"/>
+                <path d="M-150 40 Q-76 12 -4 34 L4 34 Q76 12 150 40 L150 52 Q76 24 4 46 L-4 46 Q-76 24 -150 52 Z" fill="#B9895A"/>
+                <g stroke="#C7B392" stroke-width="4" stroke-linecap="round" opacity=".8"><path d="M-128 -46 h74 M-128 -26 h58 M-128 -6 h74"/></g>
+                <g stroke="#C7B392" stroke-width="4" stroke-linecap="round" opacity=".45"><path d="M42 -50 h76 M42 -30 h62 M42 -10 h76"/></g>
+                <path d="M-118 -6 C-84 -34 -40 -6 -6 -32 C34 -60 84 -20 122 -46" fill="none" stroke="#C96A72" stroke-width="2.6" stroke-dasharray="6 8" stroke-linecap="round"/>
+                <g fill="#C96A72"><circle cx="-118" cy="-6" r="5"/><circle cx="-6" cy="-32" r="5"/><circle cx="122" cy="-46" r="5"/></g>
+                <g fill="#7FB3B5"><circle cx="-62" cy="-20" r="3.4"/><circle cx="58" cy="-40" r="3.4"/></g>
+              </g>
+              <!-- barrera retirada -->
+              <g transform="translate(64,300)" opacity=".9">
+                <rect x="-26" y="-6" width="72" height="11" rx="3" fill="#C96A72" transform="rotate(-24)"/>
+                <path d="M-34 -22 L48 26" stroke="#F2E6CE" stroke-width="3" stroke-linecap="round" opacity=".9"/>
+              </g>
+              <!-- lectora acompañante -->
+              <g transform="translate(330,306)" fill="#0E1636">
+                <circle cx="0" cy="-34" r="13"/>
+                <path d="M-15 -20 q15 -9 30 0 q7 26 3 34 q-18 6 -35 0 q-4 -8 2 -34 Z"/>
+              </g>
+              <text x="200" y="380" text-anchor="middle" font-family="Space Mono, monospace" font-size="10.5" letter-spacing="3" fill="#F2E6CE" opacity=".75">SIN BARRERAS DE COMPRENSIÓN</text>
+            </svg>
+          </button>
+          <p class="pista"><b>&#9654;</b> Toca la ventanilla para escuchar</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ENTRADA 5 ============ -->
+    <section class="slide" data-titulo="Entrada 05">
+      <div class="grid">
+        <div class="texto">
+          <p class="eyebrow">Entrada 05 <i>/ El vínculo</i></p>
+          <h2>Lo esencial y el <em>vínculo</em></h2>
+          <p class="sub">Ver con el corazón</p>
+          <p class="lede">Decido dejar atrás el lenguaje frío de las &ldquo;corbatas&rdquo; técnicas para empezar a hablar con empatía y cercanía.</p>
+          <div class="commit"><b>Mi compromiso</b><p>&ldquo;Lo esencial es invisible a los ojos&rdquo;, y soy responsable para siempre de lo que he domesticado: cada alumno es único para mí, y mi meta es guiarlo con amor hacia su propio planeta de posibilidades.</p></div>
+        </div>
+        <div class="vista">
+          <button class="porthole" data-narracion="Entrada cinco. Lo esencial y el vínculo: ver con el corazón. Decido dejar atrás el lenguaje frío de las corbatas técnicas para empezar a hablar con empatía y cercanía. Entiendo que lo esencial es invisible a los ojos, y que soy responsable para siempre de lo que he domesticado. Cada alumno es único para mí, y mi meta es guiarlo con amor hacia su propio planeta de posibilidades." aria-label="Escuchar la entrada cinco">
+            <svg viewBox="0 0 400 400" role="img" aria-label="El zorro domesticado y la rosa protegida bajo el fanal, unidos por un lazo">
+              <defs><linearGradient id="g5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#20255A"/><stop offset="70%" stop-color="#4B3260"/><stop offset="100%" stop-color="#8A5570"/></linearGradient></defs>
+              <rect width="400" height="400" fill="url(#g5)"/>
+              <g fill="#F2E6CE" opacity=".7"><circle cx="64" cy="60" r="1.5"/><circle cx="150" cy="38" r="1"/><circle cx="256" cy="62" r="1.2"/><circle cx="336" cy="40" r="1.4"/><circle cx="46" cy="140" r="1"/></g>
+              <path d="M0 300 Q100 272 200 300 T400 292 L400 400 L0 400 Z" fill="#5F3A4E"/>
+              <path d="M0 342 Q120 322 240 348 T400 340 L400 400 L0 400 Z" fill="#3E2739"/>
+              <path d="M150 268 q56 -34 108 6" fill="none" stroke="#C96A72" stroke-width="2" stroke-dasharray="5 7" opacity=".8" stroke-linecap="round"/>
+              <g transform="translate(262,284)">
+                <ellipse cx="0" cy="34" rx="46" ry="8" fill="#2A1A28" opacity=".5"/>
+                <path d="M-6 30 q-24 -6 -22 -34 q2 -26 22 -30 q22 -4 28 18 q6 24 -6 42 Z" fill="#D2764A"/>
+                <path d="M-30 30 q-30 -4 -34 -22 q-4 -18 16 -14 q18 4 22 20 Z" fill="#B85F3A"/>
+                <path d="M6 -32 l-10 -22 l16 10 Z" fill="#D2764A"/><path d="M22 -26 l6 -24 l6 22 Z" fill="#D2764A"/>
+                <path d="M2 -34 q22 -6 30 12 q8 20 -10 28 q-18 6 -26 -10 Z" fill="#E08E5E"/>
+                <circle cx="18" cy="-12" r="3" fill="#2A1A28"/><circle cx="34" cy="-6" r="2" fill="#2A1A28"/>
+              </g>
+              <g transform="translate(130,278)">
+                <ellipse cx="0" cy="42" rx="44" ry="8" fill="#2A1A28" opacity=".5"/>
+                <path d="M-34 40 q0 -56 34 -56 q34 0 34 56 Z" fill="#BFD8E8" opacity=".22"/>
+                <path d="M-34 40 q0 -56 34 -56 q34 0 34 56" fill="none" stroke="#CFE3EE" stroke-width="2" opacity=".75"/>
+                <rect x="-40" y="38" width="80" height="8" rx="3" fill="#E4B363"/>
+                <circle cx="0" cy="-20" r="4" fill="#E4B363"/>
+                <path d="M0 34 v-26" stroke="#5C8A5E" stroke-width="3" stroke-linecap="round"/>
+                <path d="M0 18 q-14 -4 -16 -14 q12 0 16 8" fill="#5C8A5E"/>
+                <g transform="translate(0,-2)"><circle r="12" fill="#C96A72"/><path d="M-9 -3 q9 -12 18 0 q-9 8 -18 0" fill="#E38C92"/><circle r="4.5" fill="#A94E58"/></g>
+              </g>
+              <g transform="translate(200,116)" opacity=".9"><path d="M0 12 C-14 -2 -14 -18 -3 -18 C1 -18 0 -14 0 -12 C0 -14 -1 -18 3 -18 C14 -18 14 -2 0 12 Z" fill="#C96A72" opacity=".9"/></g>
+              <text x="200" y="380" text-anchor="middle" font-family="Space Mono, monospace" font-size="10.5" letter-spacing="3" fill="#F2E6CE" opacity=".8">RESPONSABLE DE LO DOMESTICADO</text>
+            </svg>
+          </button>
+          <p class="pista"><b>&#9654;</b> Toca la ventanilla para escuchar</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CIERRE ============ -->
+    <section class="slide" data-titulo="Cierre">
+      <div class="grid">
+        <div class="texto">
+          <p class="eyebrow">Fin de la bitácora <i>/ Referencia</i></p>
+          <h2>Su propio <em>planeta</em> de posibilidades</h2>
+          <p class="lede">Cinco entradas, un mismo rumbo: mirar más allá de la etiqueta, escuchar en el desierto, sostener sin imponer, abrir el texto a todos y volver a nombrar el vínculo.</p>
+          <div class="ficha"><b>Referencia bibliográfica</b>
+            <p><span>Saint-Exupéry, A.</span> (2020). <em>El principito</em> (Adaptación a Lectura Fácil de S. I. Rodríguez e I. Vera de la Fuente). Madrid, España: Fundación ONCE.</p></div>
+        </div>
+        <div class="vista">
+          <button class="porthole" data-narracion="Fin de la bitácora. Cinco entradas y un mismo rumbo: mirar más allá de la etiqueta, escuchar en el desierto, sostener sin imponer, abrir el texto a todos, y volver a nombrar el vínculo. Referencia bibliográfica: Saint-Exupéry, Antoine, dos mil veinte. El principito, adaptación a Lectura Fácil de S. I. Rodríguez e I. Vera de la Fuente. Madrid, España. Fundación ONCE. Lo esencial es invisible a los ojos." aria-label="Escuchar el cierre y la referencia">
+            <svg viewBox="0 0 400 400" role="img" aria-label="Cada alumno en su propio pequeño planeta, con la rosa y el baobab">
+              <rect width="400" height="400" fill="#101638"/>
+              <g fill="#F2E6CE"><circle cx="54" cy="66" r="1.5" opacity=".9"/><circle cx="128" cy="42" r="1" opacity=".55"/><circle cx="214" cy="58" r="1.3" opacity=".7"/><circle cx="318" cy="44" r="1.6" opacity=".85"/><circle cx="360" cy="130" r="1" opacity=".5"/><circle cx="44" cy="176" r="1.2" opacity=".6"/></g>
+              <g transform="translate(70,74)"><path d="M0 -14 L1.6 -2 L14 0 L1.6 2 L0 14 L-1.6 2 L-14 0 L-1.6 -2 Z" fill="#E4B363" opacity=".9"/></g>
+              <!-- planetas pequeños de cada alumno -->
+              <g opacity=".9">
+                <g transform="translate(86,190)"><circle r="26" fill="#3E6A6C"/><path d="M-26 0 a26 26 0 0 0 52 0 Z" fill="#31585A"/><g transform="translate(0,-28)"><circle cy="-6" r="5" fill="#0F1533"/><path d="M-5 0 q5 -6 10 0 l2 10 q-7 3 -14 0 Z" fill="#0F1533"/></g></g>
+                <g transform="translate(330,208)"><circle r="22" fill="#5C6A9E"/><path d="M-22 0 a22 22 0 0 0 44 0 Z" fill="#4A5786"/><g transform="translate(0,-24)"><circle cy="-5" r="4.4" fill="#0F1533"/><path d="M-4.5 0 q4.5 -5 9 0 l2 9 q-6.5 3 -13 0 Z" fill="#0F1533"/></g></g>
+              </g>
+              <g transform="translate(200,262)">
+                <circle r="100" fill="#3E6A6C"/>
+                <path d="M-100 0 a100 100 0 0 0 200 0 Z" fill="#31585A"/>
+                <ellipse cx="-36" cy="-22" rx="24" ry="13" fill="#4C7C7E" opacity=".7"/>
+                <ellipse cx="42" cy="16" rx="28" ry="15" fill="#4C7C7E" opacity=".5"/>
+                <g transform="translate(-50,-82) rotate(-26)"><path d="M-13 11 L0 -11 L13 11 Z" fill="#8A5E3C"/><path d="M-6 -4 q6 -11 12 0" fill="#C96A72" opacity=".8"/></g>
+                <g transform="translate(32,-92) rotate(18)"><path d="M-11 9 L0 -9 L11 9 Z" fill="#8A5E3C"/></g>
+                <g transform="translate(-2,-100)">
+                  <path d="M0 0 v-24" stroke="#5C8A5E" stroke-width="3" stroke-linecap="round"/>
+                  <path d="M0 -11 q-12 -4 -13 -12 q10 0 13 6" fill="#5C8A5E"/>
+                  <circle cy="-28" r="9" fill="#C96A72"/><path d="M-6 -30 q6 -8 12 0 q-6 6 -12 0" fill="#E38C92"/>
+                </g>
+                <g transform="translate(80,-54) rotate(46)">
+                  <path d="M0 6 v-20" stroke="#6B4A2E" stroke-width="4" stroke-linecap="round"/>
+                  <circle cy="-22" r="11" fill="#4E7A4A"/><circle cx="-10" cy="-15" r="7.5" fill="#5C8A5E"/><circle cx="10" cy="-15" r="7.5" fill="#5C8A5E"/>
+                </g>
+              </g>
+              <text x="200" y="384" text-anchor="middle" font-family="Space Mono, monospace" font-size="10.5" letter-spacing="4" fill="#E4B363" opacity=".85">CADA ALUMNO · SU PLANETA</text>
+            </svg>
+          </button>
+          <p class="pista"><b>&#9654;</b> Toca la ventanilla para escuchar</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="nav">
+    <div class="flechas">
+      <button class="arrow" id="prev" aria-label="Diapositiva anterior">&#8592;</button>
+      <button class="arrow" id="next" aria-label="Siguiente diapositiva">&#8594;</button>
+    </div>
+    <div class="altimetro">
+      <div class="barra"><i id="fill"></i></div>
+      <span class="conteo"><b id="actual">01</b> / <span id="total">07</span></span>
+    </div>
+    <div class="puntos" id="puntos"></div>
+  </footer>
+
+  <div class="urlbox" id="urlbox">
+    <input id="urlinput" type="url" placeholder="Pega aquí la URL de una imagen (https://…)" aria-label="URL de imagen">
+    <button class="chip" id="urlok">Usar</button>
+    <button class="chip" id="urlreset">Restaurar dibujo</button>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ============ cielo estrellado ============ */
+  var cv=document.getElementById("cielo"), cx=cv.getContext("2d"), estrellas=[], W=0, H=0;
+  function medir(){
+    var dpr = Math.min(window.devicePixelRatio||1, 2);
+    W=cv.width=Math.floor(window.innerWidth*dpr); H=cv.height=Math.floor(window.innerHeight*dpr);
+    cv.style.width=window.innerWidth+"px"; cv.style.height=window.innerHeight+"px";
+    estrellas=[]; var n=Math.round((window.innerWidth*window.innerHeight)/9000);
+    for(var i=0;i<n;i++){estrellas.push({x:Math.random()*W,y:Math.random()*H*0.8,r:(Math.random()*1.2+.25)*dpr,a:Math.random()*.7+.15,v:Math.random()*.012+.003,f:Math.random()*6.28});}
+  }
+  function pintar(){
+    cx.clearRect(0,0,W,H);
+    for(var i=0;i<estrellas.length;i++){var s=estrellas[i]; if(!reduce)s.f+=s.v;
+      var al=s.a*(reduce?1:(0.55+0.45*Math.sin(s.f)));
+      cx.beginPath(); cx.arc(s.x,s.y,s.r,0,6.2832); cx.fillStyle="rgba(242,230,206,"+al.toFixed(3)+")"; cx.fill();}
+    requestAnimationFrame(pintar);
+  }
+  medir(); pintar(); window.addEventListener("resize", medir);
+
+  /* ============ estado visible ============ */
+  var elEstado=document.getElementById("estado"), tEstado=null;
+  function decir(txt, alerta, ms){
+    elEstado.textContent=txt||"";
+    elEstado.className = alerta ? "alerta" : "";
+    clearTimeout(tEstado);
+    if(ms) tEstado=setTimeout(function(){ elEstado.textContent=""; elEstado.className=""; }, ms);
+  }
+
+  /* ============ VOCES ============ */
+  var synth = window.speechSynthesis;
+  var selVoces=document.getElementById("voces");
+  var listaVoces=[], vozElegida=null, vocesListas=false;
+  var PREF=["es-mx","es-us","es-419","es-co","es-ar","es-cl","es-pe","es-ve","es-do","es-gt","es-la"];
+  var PISTAS=/mexic|latin|america|paulina|sabina|jorge|juan|diego|rodrigo|dalia|renata|luciana|isabela|camila|monica|google espa/i;
+
+  function esLatina(v){
+    var l=(v.lang||"").replace("_","-").toLowerCase();
+    return PREF.indexOf(l)>-1 || PISTAS.test(v.name||"");
+  }
+  function pintarVoces(){
+    var todas = (synth && synth.getVoices()) || [];
+    if(!todas.length) return false;
+    var esp = todas.filter(function(v){ return /^es/i.test(v.lang||""); });
+    listaVoces = esp.length ? esp : todas;
+    selVoces.innerHTML="";
+    var opt0=document.createElement("option");
+    opt0.value=""; opt0.textContent="Voz automática (es-MX)";
+    selVoces.appendChild(opt0);
+    listaVoces.forEach(function(v,i){
+      var o=document.createElement("option");
+      o.value=String(i);
+      o.textContent=(esLatina(v)?"\u2605 ":"")+v.name+" ("+(v.lang||"").replace("_","-")+")";
+      selVoces.appendChild(o);
+    });
+    var mejor=-1;
+    for(var p=0;p<PREF.length && mejor<0;p++){
+      for(var i=0;i<listaVoces.length;i++){
+        if((listaVoces[i].lang||"").replace("_","-").toLowerCase()===PREF[p]){ mejor=i; break; }
+      }
+    }
+    if(mejor<0){ for(var j=0;j<listaVoces.length;j++){ if(esLatina(listaVoces[j])){ mejor=j; break; } } }
+    if(mejor<0 && esp.length) mejor=0;
+    if(mejor>=0){ selVoces.value=String(mejor); vozElegida=listaVoces[mejor]; }
+    vocesListas=true;
+    if(!esp.length){ decir("Tu navegador no tiene voces en español instaladas", true); }
+    else { decir("Voz lista: "+vozElegida.name, false, 4000); }
+    return true;
+  }
+  function buscarVoces(){
+    if(!synth){ decir("Este navegador no permite narración por voz", true); selVoces.innerHTML="<option>No disponible</option>"; return; }
+    if(pintarVoces()) return;
+    var intentos=0;
+    var t=setInterval(function(){
+      intentos++;
+      if(pintarVoces() || intentos>40){ clearInterval(t);
+        if(!vocesListas){ decir("Toca cualquier botón para activar la voz", true); }
+      }
+    }, 150);
+  }
+  if(synth){
+    synth.onvoiceschanged=function(){ pintarVoces(); };
+    buscarVoces();
+  } else { decir("Este navegador no permite narración por voz", true); }
+  selVoces.addEventListener("change", function(){
+    var v=selVoces.value;
+    vozElegida = v==="" ? null : listaVoces[parseInt(v,10)];
+    detener();
+    decir(vozElegida ? "Voz: "+vozElegida.name : "Voz automática", false, 3000);
+  });
+
+  /* ============ narración (troceada + antibloqueo de Chrome) ============ */
+  var cola=[], activo=false, botonActivo=null, keep=null;
+
+  function trocear(t){
+    var frases=t.match(/[^.!?…]+[.!?…]*/g)||[t], out=[], buf="";
+    frases.forEach(function(f){
+      f=f.trim(); if(!f) return;
+      if((buf+" "+f).trim().length>150){ if(buf) out.push(buf.trim()); buf=f; }
+      else buf=(buf+" "+f).trim();
+    });
+    if(buf) out.push(buf.trim());
+    return out;
+  }
+  function detener(){
+    activo=false; cola=[];
+    clearInterval(keep); keep=null;
+    if(synth){ try{ synth.cancel(); }catch(e){} }
+    var p=document.querySelectorAll(".porthole.speaking");
+    for(var i=0;i<p.length;i++) p[i].classList.remove("speaking");
+    botonActivo=null;
+  }
+  function siguiente(){
+    if(!activo) return;
+    if(!cola.length){ var b=botonActivo; detener(); if(b) b.classList.remove("speaking"); decir("Narración terminada", false, 2500); return; }
+    var u=new SpeechSynthesisUtterance(cola.shift());
+    if(vozElegida){ u.voice=vozElegida; u.lang=vozElegida.lang; } else { u.lang="es-MX"; }
+    u.rate=.95; u.pitch=1; u.volume=1;
+    u.onend=function(){ setTimeout(siguiente,80); };
+    u.onerror=function(e){
+      var err=(e && e.error)||"";
+      if(err==="interrupted"||err==="canceled") return;
+      decir("No se pudo reproducir la voz ("+err+"). Prueba con otra voz.", true, 6000);
+      detener();
+    };
+    try{ synth.resume(); synth.speak(u); }catch(err){ decir("Error al iniciar la voz", true, 5000); detener(); }
+  }
+  function hablar(texto, boton){
+    if(!synth){ decir("Este navegador no permite narración por voz", true); return; }
+    if(activo && botonActivo===boton){ detener(); decir("Narración detenida", false, 2000); return; }
+    detener();
+    if(!vocesListas) pintarVoces();
+    cola=trocear(texto); activo=true; botonActivo=boton;
+    if(boton) boton.classList.add("speaking");
+    decir("Narrando… toca otra vez para detener");
+    setTimeout(siguiente, 200);            // evita el bug cancel()+speak() de Chrome
+    keep=setInterval(function(){           // Chrome corta a los ~15 s si no se le insiste
+      if(!activo){ clearInterval(keep); keep=null; return; }
+      try{ synth.pause(); synth.resume(); }catch(e){}
+    }, 9000);
+    setTimeout(function(){
+      if(activo && synth && !synth.speaking && !synth.pending){
+        decir("Sin audio: sube el volumen o elige otra voz en el menú", true, 7000);
+      }
+    }, 1200);
+  }
+  function hablarDe(slide){ var b=slide.querySelector(".porthole"); if(b) hablar(b.dataset.narracion,b); }
+
+  var portholes=document.querySelectorAll(".porthole");
+  for(var i=0;i<portholes.length;i++){
+    (function(b){ b.addEventListener("click", function(){ arrancarAudio(); hablar(b.dataset.narracion,b); }); })(portholes[i]);
+  }
+
+  document.getElementById("btnProbar").addEventListener("click", function(){
+    arrancarAudio(); if(!vocesListas) pintarVoces();
+    hablar("Hola. Así se escucha la narración de la bitácora en español latino.", null);
+  });
+  document.getElementById("btnStop").addEventListener("click", function(){ detener(); decir("Narración detenida",false,2000); });
+
+  var auto=false, btnAuto=document.getElementById("btnAuto");
+  btnAuto.addEventListener("click", function(){
+    auto=!auto; btnAuto.setAttribute("aria-pressed",String(auto));
+    if(auto){ arrancarAudio(); hablarDe(slides[idx]); } else { detener(); }
+  });
+
+  /* ============ diapositivas ============ */
+  var slides=Array.prototype.slice.call(document.querySelectorAll(".slide")), idx=0;
+  var elActual=document.getElementById("actual"), elTotal=document.getElementById("total"),
+      fill=document.getElementById("fill"), puntos=document.getElementById("puntos"),
+      prev=document.getElementById("prev"), next=document.getElementById("next");
+  elTotal.textContent=("0"+slides.length).slice(-2);
+  slides.forEach(function(s,i){
+    var b=document.createElement("button"); b.className="punto"; b.type="button";
+    b.setAttribute("aria-label", s.dataset.titulo||("Diapositiva "+(i+1)));
+    b.addEventListener("click", function(){ ir(i); }); puntos.appendChild(b);
+  });
+  var bolitas=Array.prototype.slice.call(puntos.children);
+  function ir(n){
+    if(n<0||n>=slides.length) return;
+    detener();
+    slides[idx].classList.remove("is-active"); idx=n; slides[idx].classList.add("is-active");
+    elActual.textContent=("0"+(idx+1)).slice(-2);
+    fill.style.width=(((idx+1)/slides.length)*100)+"%";
+    bolitas.forEach(function(b,i){ b.setAttribute("aria-current", i===idx?"true":"false"); });
+    prev.disabled=idx===0; next.disabled=idx===slides.length-1;
+    cerrarUrl(); campanita();
+    if(auto) setTimeout(function(){ hablarDe(slides[idx]); }, 450);
+    window.scrollTo({top:0,behavior:reduce?"auto":"smooth"});
+  }
+  prev.addEventListener("click", function(){ ir(idx-1); });
+  next.addEventListener("click", function(){ ir(idx+1); });
+  document.addEventListener("keydown", function(e){
+    if(e.target.tagName==="INPUT"||e.target.tagName==="SELECT") return;
+    if(e.key==="ArrowRight"||e.key==="PageDown") ir(idx+1);
+    else if(e.key==="ArrowLeft"||e.key==="PageUp") ir(idx-1);
+    else if(e.key===" "){ e.preventDefault(); arrancarAudio(); hablarDe(slides[idx]); }
+    else if(e.key==="Escape") detener();
+  });
+  var tx=0,ty=0;
+  document.addEventListener("touchstart", function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; },{passive:true});
+  document.addEventListener("touchend", function(e){
+    var dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.6) ir(dx<0?idx+1:idx-1);
+  },{passive:true});
+  ir(0);
+
+  /* ============ sonido ambiente ============ */
+  var ctxA=null, ambiente=null, ganAmb=null;
+  function arrancarAudio(){
+    if(!ctxA){ var AC=window.AudioContext||window.webkitAudioContext; if(AC) ctxA=new AC(); }
+    if(ctxA&&ctxA.state==="suspended") ctxA.resume();
+  }
+  function campanita(){
+    if(!ctxA) return;
+    var o=ctxA.createOscillator(), g=ctxA.createGain();
+    o.type="sine"; o.frequency.value=880;
+    g.gain.setValueAtTime(0.0001,ctxA.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.05,ctxA.currentTime+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,ctxA.currentTime+1.1);
+    o.connect(g); g.connect(ctxA.destination); o.start(); o.stop(ctxA.currentTime+1.2);
+  }
+  var btnAmb=document.getElementById("btnAmb");
+  btnAmb.addEventListener("click", function(){
+    arrancarAudio(); if(!ctxA) return;
+    if(ambiente){
+      ganAmb.gain.exponentialRampToValueAtTime(0.0001,ctxA.currentTime+0.8);
+      var viejo=ambiente; setTimeout(function(){ viejo.forEach(function(n){ try{n.stop();}catch(e){} }); },900);
+      ambiente=null; btnAmb.setAttribute("aria-pressed","false"); return;
+    }
+    ganAmb=ctxA.createGain(); ganAmb.gain.value=0.0001; ganAmb.connect(ctxA.destination);
+    var buf=ctxA.createBuffer(1,ctxA.sampleRate*4,ctxA.sampleRate), d=buf.getChannelData(0);
+    for(var i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*0.35;
+    var ruido=ctxA.createBufferSource(); ruido.buffer=buf; ruido.loop=true;
+    var filtro=ctxA.createBiquadFilter(); filtro.type="lowpass"; filtro.frequency.value=420; filtro.Q.value=.7;
+    var gr=ctxA.createGain(); gr.gain.value=.12;
+    ruido.connect(filtro); filtro.connect(gr); gr.connect(ganAmb);
+    var o1=ctxA.createOscillator(), o2=ctxA.createOscillator(), go=ctxA.createGain();
+    o1.type="sine"; o1.frequency.value=110; o2.type="sine"; o2.frequency.value=164.8;
+    go.gain.value=.05; o1.connect(go); o2.connect(go); go.connect(ganAmb);
+    ruido.start(); o1.start(); o2.start();
+    ganAmb.gain.exponentialRampToValueAtTime(0.2,ctxA.currentTime+1.6);
+    ambiente=[ruido,o1,o2]; btnAmb.setAttribute("aria-pressed","true");
+  });
+
+  /* ============ el elefante dentro de la boa ============ */
+  var btnEle=document.getElementById("btnElefante");
+  if(btnEle){
+    btnEle.addEventListener("click", function(){
+      var on=btnEle.getAttribute("aria-pressed")==="true"; on=!on;
+      btnEle.setAttribute("aria-pressed",String(on));
+      btnEle.textContent=on?"Ver solo el sombrero":"Mostrar el elefante";
+      document.getElementById("elefante").style.opacity=on?"1":"0";
+      document.getElementById("rotuloArriba").textContent=on?"LO QUE YO ELIJO VER":"LO QUE EL SISTEMA VE";
+    });
+  }
+
+  /* ============ cambiar la imagen ============ */
+  var caja=document.getElementById("urlbox"), input=document.getElementById("urlinput"),
+      ok=document.getElementById("urlok"), reset=document.getElementById("urlreset");
+  var originales=new Map();
+  slides.forEach(function(s){
+    var vista=s.querySelector(".vista"); if(!vista) return;
+    var acc=vista.querySelector(".acciones");
+    if(!acc){ acc=document.createElement("div"); acc.className="acciones"; vista.appendChild(acc); }
+    var b=document.createElement("button"); b.className="chip"; b.type="button"; b.textContent="Cambiar imagen";
+    b.addEventListener("click", function(){ caja.classList.toggle("open"); if(caja.classList.contains("open")) input.focus(); });
+    acc.appendChild(b);
+  });
+  function cerrarUrl(){ caja.classList.remove("open"); }
+  ok.addEventListener("click", function(){
+    var url=input.value.trim(); if(!url) return;
+    var p=slides[idx].querySelector(".porthole");
+    if(!originales.has(p)) originales.set(p,p.innerHTML);
+    p.innerHTML='<img src="'+url.replace(/"/g,"&quot;")+'" alt="Imagen de la entrada">';
+    input.value=""; cerrarUrl();
+  });
+  reset.addEventListener("click", function(){
+    var p=slides[idx].querySelector(".porthole");
+    if(originales.has(p)) p.innerHTML=originales.get(p);
+    cerrarUrl();
+  });
+
+})();
+</script>
+</body>
+</html>
